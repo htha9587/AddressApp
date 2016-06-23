@@ -9,11 +9,11 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<AnchorPane prefHeight="270.0" prefWidth="413.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="address.view.PersonEditDialogController">
+<AnchorPane prefHeight="270.0" prefWidth="413.0" styleClass="background" stylesheets="@DarkTheme.css" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="address.view.PersonEditDialogController">
    <children>
-      <ButtonBar layoutX="207.0" layoutY="230.0" prefHeight="40.0" prefWidth="200.0">
+      <ButtonBar layoutX="169.0" layoutY="230.0" prefHeight="40.0" prefWidth="238.0">
         <buttons>
-          <Button mnemonicParsing="false" onAction="#handleOk" text="OK" />
+          <Button defaultButton="true" mnemonicParsing="false" onAction="#handleOk" text="OK" />
             <Button mnemonicParsing="false" onAction="#handleCancel" text="Cancel" />
         </buttons>
       </ButtonBar>
