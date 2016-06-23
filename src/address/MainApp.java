@@ -1,15 +1,25 @@
 package address;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.prefs.Preferences;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 
 import address.model.Person;
+import address.model.PersonListWrapper;
 import address.view.PersonEditDialogController;
 import address.view.PersonOverviewController;
+import address.view.RootLayoutController;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -79,10 +89,22 @@ public class MainApp extends Application
             // Show the scene containing the root layout.
             Scene scene = new Scene(rootLayout);
             primaryStage.setScene(scene);
+            
+            //Give controller access to main app.
+            RootLayoutController controller = loader.getController();
+            controller.setMainApp(this);
+            
             primaryStage.show();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        
+        //try to open last opened person file.
+        File file = getPersonFilePath();
+        if(file != null)
+        		{
+        			loadPersonDataFromFile(file);
+        		}
     }
 
     /**
@@ -144,7 +166,106 @@ public class MainApp extends Application
             return false;
         }
     }
+    
+    /**
+     * Returns person file preference, file that was last opened.
+     * Read from OS specific registry. Null is returned if no preference is found.
+     */
+    public File getPersonFilePath()
+    {
+    	Preferences prefs = Preferences.userNodeForPackage(MainApp.class);
+    	String filePath = prefs.get("filePath", null);
+    	if(filePath != null)
+    	{
+    		return new File(filePath);
+    	}
+    	else
+    	{
+    		return null;
+    	}
+    }
+    
+    /**
+     * Sets file path from OS registry(Currently loaded file).
+     */
+    public void setPersonFilePath(File file)
+    {
+    	Preferences prefs = Preferences.userNodeForPackage(MainApp.class);
+    	if(file != null)
+    	{
+    		prefs.put("filePath", file.getPath());
+    		//Update Stage title.
+    		primaryStage.setTitle("AddressApp - " + file.getName());
+    	}
+    	else
+    	{
+    		prefs.remove("filePath");
+    		//Update Stage title.
+    		primaryStage.setTitle("AddressApp");
+    	}
+    }
+    		
+    /**
+     * Loads person data from specified file. Current data will be replaced.
+     */
+    public void loadPersonDataFromFile(File file)
+    {
+    	try
+    	{
+    		JAXBContext context = JAXBContext
+    				.newInstance(PersonListWrapper.class);
+    		Unmarshaller um = context.createUnmarshaller();
+    		
+    		//Reading xml from file and unmarshalling.
+    		PersonListWrapper wrapper = (PersonListWrapper) um.unmarshal(file);
+    		
+    		personData.clear();
+    		personData.addAll(wrapper.getPersons());
+    		//Save file path to registry.
+    		setPersonFilePath(file);
+    	} 
+    	catch (Exception e) //ANY exception.
+    	{
+    		Alert alert = new Alert(AlertType.ERROR);
+    		alert.setTitle("Error");
+    		alert.setHeaderText("Couldn't load data");
+    		alert.setContentText("Couldn't load data from file:\n" + file.getPath());
+    		
+    		alert.showAndWait();
+    	}
+    }
 
+    /**
+     * Saves person data to a specified file.
+     */
+    public void savePersonDataToFile(File file)
+    {
+    	try
+    	{
+    		JAXBContext context = JAXBContext
+    				.newInstance(PersonListWrapper.class);
+    		Marshaller m = context.createMarshaller();
+    		m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+    		//Wrapping person data.
+    		PersonListWrapper wrapper = new PersonListWrapper();
+    		wrapper.setPersons(personData);
+    		//Marshalling and saving xml to file.
+    		m.marshal(wrapper, file);
+    		//Save file path to registry.
+    		setPersonFilePath(file);
+    	}
+    	catch(Exception e) //Grabs any exception.
+    	{
+    		Alert alert = new Alert(AlertType.ERROR);
+    		alert.setTitle("Error");
+    		alert.setHeaderText("Couldn't save data");
+    		alert.setContentText("Couldn't save data to file:\n" + file.getPath());
+    		
+    		alert.showAndWait();
+    	}
+    }
+    
+    
     /**
      * Returns the main stage.
      * @return
