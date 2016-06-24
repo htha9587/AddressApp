@@ -10,6 +10,7 @@ import javax.xml.bind.Unmarshaller;
 
 import address.model.Person;
 import address.model.PersonListWrapper;
+import address.view.BirthdayStatisticsController;
 import address.view.PersonEditDialogController;
 import address.view.PersonOverviewController;
 import address.view.RootLayoutController;
@@ -166,6 +167,38 @@ public class MainApp extends Application
             return false;
         }
     }
+    
+    /**
+     * Dialog for birthday statistics.
+     */
+    public void showBirthdayStatistics()
+    {
+    	try
+    	{
+    		//Loads fxml file and creates a stage for the popup.
+    		FXMLLoader loader = new FXMLLoader();
+    		loader.setLocation(MainApp.class.getResource("view/BirthdayStatistics.fxml"));
+    		AnchorPane page = (AnchorPane) loader.load();
+    		Stage dialogStage = new Stage();
+    		dialogStage.setTitle("Birthday Statistics");
+    		dialogStage.initModality(Modality.WINDOW_MODAL);
+    		dialogStage.initOwner(primaryStage);
+    		Scene scene = new Scene(page);
+    		dialogStage.setScene(scene);
+    		
+    		//Sets persons into controller.
+    		BirthdayStatisticsController controller = loader.getController();
+    		controller.setPersonData(personData);
+    		dialogStage.getIcons().add(new Image("file:resources/images/images.png"));
+    		
+    		dialogStage.show();
+    	}
+    	catch(IOException e)
+    	{
+    		e.printStackTrace();
+    	}
+    }
+    
     
     /**
      * Returns person file preference, file that was last opened.

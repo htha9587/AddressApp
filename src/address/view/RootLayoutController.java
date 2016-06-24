@@ -124,5 +124,14 @@ public class RootLayoutController
 	{
 		System.exit(0);
 	}
+	/**
+	 * Menu item that opens up birthday graph.
+	 */
+	@FXML
+	private void handleShowBirthdayStatistics()
+	{
+		mainApp.showBirthdayStatistics();
+	}
+	
 	
 }
